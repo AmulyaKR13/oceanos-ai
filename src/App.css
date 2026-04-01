@@ -182,3 +182,68 @@
     border-right-color: var(--border);
   }
 }
+
+#worldmap {
+  padding: 32px;
+  text-align: left;
+  border-top: 1px solid var(--border);
+
+  @media (max-width: 1024px) {
+    padding: 24px 20px;
+    text-align: center;
+  }
+}
+
+.worldmap-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  p {
+    color: var(--text);
+    font-size: 16px;
+  }
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.worldmap-frame {
+  position: relative;
+  width: 100%;
+  height: 70vh;
+  min-height: 420px;
+  background: var(--map-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.worldmap-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.worldmap-country {
+  cursor: pointer;
+  transition: fill 160ms ease-in-out, stroke-width 160ms ease-in-out;
+}
+
+.worldmap-tooltip {
+  position: fixed;
+  padding: 6px 10px;
+  background: rgba(17, 17, 17, 0.9);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 12px;
+  pointer-events: none;
+  transform: translate(-50%, -120%);
+  opacity: 0;
+  transition: opacity 120ms ease-in-out;
+  white-space: nowrap;
+}

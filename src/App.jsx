@@ -1,120 +1,128 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useEffect, useRef } from 'react'
 import './App.css'
-//My comit Nishant
+
 function App() {
-  const [count, setCount] = useState(0)
+  const mapRef = useRef(null)
+  const tooltipRef = useRef(null)
+
+  useEffect(() => {
+    const d3 = window.d3
+    if (!d3) {
+      return
+    }
+
+    const svg = d3.select(mapRef.current)
+    const tooltip = d3.select(tooltipRef.current)
+    const geoUrl =
+      'https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson'
+    let geojsonCache = null
+
+    const renderMap = (geojson) => {
+      if (!mapRef.current) return
+
+      const width = mapRef.current.clientWidth
+      const height = mapRef.current.clientHeight
+
+      svg.selectAll('*').remove()
+
+      const projection = d3.geoNaturalEarth1().fitSize([width, height], geojson)
+      const path = d3.geoPath(projection)
+
+      svg
+        .append('path')
+        .datum(d3.geoGraticule10())
+        .attr('d', path)
+        .attr('fill', 'none')
+        .attr('stroke', 'var(--map-grid)')
+        .attr('stroke-width', 0.6)
+
+      svg
+        .append('g')
+        .selectAll('path')
+        .data(geojson.features)
+        .join('path')
+        .attr('d', path)
+        .attr('class', 'worldmap-country')
+        .attr('fill', 'var(--map-land)')
+        .attr('stroke', 'var(--map-land-stroke)')
+        .attr('stroke-width', 0.6)
+        .on('mouseenter', function (event, d) {
+          d3.select(this)
+            .attr('fill', 'var(--map-land-hover)')
+            .attr('stroke-width', 0.9)
+          tooltip
+            .style('opacity', 1)
+            .text(d?.properties?.name || 'Unknown')
+        })
+        .on('mousemove', function (event) {
+          tooltip
+            .style('left', `${event.clientX}px`)
+            .style('top', `${event.clientY}px`)
+        })
+        .on('mouseleave', function () {
+          d3.select(this)
+            .attr('fill', 'var(--map-land)')
+            .attr('stroke-width', 0.6)
+          tooltip.style('opacity', 0)
+        })
+    }
+
+    const loadMap = async () => {
+      try {
+        if (!geojsonCache) {
+          geojsonCache = await d3.json(geoUrl)
+        }
+        if (geojsonCache) {
+          renderMap(geojsonCache)
+        }
+      } catch (error) {
+        svg
+          .append('text')
+          .attr('x', 20)
+          .attr('y', 40)
+          .attr('fill', '#111')
+          .style('font-size', '16px')
+          .text('Failed to load GeoJSON. Check your internet connection.')
+        // eslint-disable-next-line no-console
+        console.error(error)
+      }
+    }
+
+    const handleResize = () => {
+      if (geojsonCache) {
+        renderMap(geojsonCache)
+      }
+    }
+
+    loadMap()
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    <section id="worldmap">
+      <div className="worldmap-header">
+        <h2>World map</h2>
+        <p>Hover a country to see its name.</p>
+      </div>
+      <div className="worldmap-frame">
+        <svg
+          id="map"
+          ref={mapRef}
+          className="worldmap-svg"
+          role="img"
+          aria-label="World map"
+        ></svg>
+        <div
+          ref={tooltipRef}
+          className="worldmap-tooltip"
+          aria-hidden="true"
+        ></div>
+      </div>
+    </section>
   )
 }
 
