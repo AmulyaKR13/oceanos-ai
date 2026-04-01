@@ -212,6 +212,75 @@
   }
 }
 
+.worldmap-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+
+  @media (max-width: 1024px) {
+    justify-content: center;
+  }
+}
+
+.map-toggle {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text-h);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 160ms ease-in-out;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.map-toggle:hover,
+.map-toggle:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 8px 16px -12px rgba(15, 37, 47, 0.6);
+}
+
+.map-toggle.is-active {
+  background: var(--accent);
+  color: #f6fbfc;
+  border-color: var(--accent);
+}
+
+@media (prefers-color-scheme: dark) {
+  .map-toggle {
+    background: rgba(15, 35, 42, 0.9);
+  }
+}
+
+.worldmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 18px;
+
+  span {
+    font-weight: 500;
+  }
+
+  @media (max-width: 1024px) {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.legend-bar {
+  width: 160px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #d64545 0%, #f1c84b 50%, #2fbf71 100%);
+  border: 1px solid var(--map-land-stroke);
+}
+
 .worldmap-frame {
   position: relative;
   width: 100%;
@@ -236,129 +305,64 @@
 
 .worldmap-tooltip {
   position: fixed;
-  padding: 6px 10px;
-  background: rgba(17, 17, 17, 0.9);
-  color: #fff;
-  border-radius: 999px;
+  padding: 14px 16px;
+  background: rgba(10, 18, 22, 0.95);
+  color: #eaf5f6;
+  border-radius: 16px;
   font-size: 12px;
   pointer-events: none;
-  transform: translate(-50%, -120%);
+  transform: translate(0, -100%);
   opacity: 0;
   transition: opacity 120ms ease-in-out;
-  white-space: nowrap;
-}
-
-#sources {
-  padding: 32px;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  @media (max-width: 1024px) {
-    padding: 24px 20px;
-    text-align: center;
-  }
-}
-
-.sources-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
-
-  p {
-    margin: 0;
-    color: var(--text);
-    font-size: 16px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    align-items: center;
-  }
-}
-
-.topic-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.topic-card {
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 18px;
-  background: var(--bg);
+  white-space: normal;
+  width: min(260px, 70vw);
   box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.topic-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-
-  h3 {
-    margin: 0;
-    font-size: 20px;
-    color: var(--text-h);
-  }
-}
-
-.pill {
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--code-bg);
-  color: var(--text-h);
-  white-space: nowrap;
-}
-
-.topic-description {
-  margin: 0;
-  color: var(--text);
-  font-size: 15px;
-}
-
-.topic-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.topic-item {
-  text-align: left;
-  background: var(--code-bg);
-  border-radius: 12px;
-  padding: 12px;
-
-  p {
-    margin: 6px 0 0;
-    font-size: 14px;
-    color: var(--text);
-  }
-}
-
-.topic-link {
-  color: var(--text-h);
+.tooltip-title {
+  font-size: 13px;
   font-weight: 600;
-  text-decoration: none;
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
+  margin-bottom: 8px;
+  letter-spacing: 0.2px;
+}
 
-  &:hover {
-    text-decoration: underline;
-  }
+.tooltip-section {
+  margin-bottom: 8px;
+}
+
+.tooltip-section ul {
+  margin: 6px 0 0;
+  padding-left: 16px;
+}
+
+.tooltip-section li {
+  margin-bottom: 4px;
+}
+
+.tooltip-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(234, 245, 246, 0.7);
+}
+
+.tooltip-empty {
+  font-size: 12px;
+  color: rgba(234, 245, 246, 0.7);
+}
+
+.worldmap-note {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text);
+  opacity: 0.85;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.worldmap-status {
+  font-size: 12px;
+  opacity: 0.8;
 }
