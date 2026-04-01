@@ -3,7 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
-//My comit
+//My comit Nishant
 function App() {
   const [count, setCount] = useState(0)
 
