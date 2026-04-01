@@ -10,127 +10,6 @@ function App() {
     biodiversity: true,
     resources: true
   })
-  const [purpleAirSensors, setPurpleAirSensors] = useState([])
-  const [purpleAirError, setPurpleAirError] = useState(null)
-  const [purpleAirUpdatedAt, setPurpleAirUpdatedAt] = useState(null)
-  const [purpleAirInsightsByCountry, setPurpleAirInsightsByCountry] =
-    useState({})
-
-  useEffect(() => {
-    const purpleAirKey = import.meta.env.VITE_PURPLEAIR_KEY
-    if (!purpleAirKey) {
-      setPurpleAirError('Missing PurpleAir API key.')
-      return
-    }
-
-    let isMounted = true
-
-    const fetchPurpleAirSensors = async () => {
-      try {
-        setPurpleAirError(null)
-        const response = await fetch(
-          'https://api.purpleair.com/v1/sensors?fields=latitude,longitude,pm2.5_atm&location_type=0&max_age=3600&limit=500',
-          {
-            headers: {
-              'X-API-Key': purpleAirKey
-            }
-          }
-        )
-
-        if (!response.ok) {
-          throw new Error('PurpleAir request failed.')
-        }
-
-        const data = await response.json()
-        if (!isMounted) return
-
-        const fields = data?.fields || []
-        const latIndex = fields.indexOf('latitude')
-        const lonIndex = fields.indexOf('longitude')
-        const pmIndex = fields.indexOf('pm2.5_atm')
-        const rows = Array.isArray(data?.data) ? data.data : []
-
-        const sensors = rows
-          .map((row) => ({
-            lat: row?.[latIndex],
-            lon: row?.[lonIndex],
-            pm25: row?.[pmIndex]
-          }))
-          .filter(
-            (row) =>
-              Number.isFinite(row.lat) &&
-              Number.isFinite(row.lon) &&
-              Number.isFinite(row.pm25)
-          )
-
-        setPurpleAirSensors(sensors)
-        setPurpleAirUpdatedAt(new Date().toISOString())
-      } catch (error) {
-        if (!isMounted) return
-        setPurpleAirError('Failed to load PurpleAir sensors.')
-      }
-    }
-
-    fetchPurpleAirSensors()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
-  const buildPurpleAirInsights = (d3, geojson, sensors) => {
-    if (!geojson || !Array.isArray(sensors) || sensors.length === 0) {
-      return {}
-    }
-
-    const stats = {}
-    const features = Array.isArray(geojson.features) ? geojson.features : []
-
-    sensors.forEach((sensor) => {
-      let matchedCountry = null
-      for (const feature of features) {
-        if (d3.geoContains(feature, [sensor.lon, sensor.lat])) {
-          matchedCountry = feature?.properties?.name || null
-          break
-        }
-      }
-
-      if (!matchedCountry) return
-
-      if (!stats[matchedCountry]) {
-        stats[matchedCountry] = { sum: 0, count: 0 }
-      }
-
-      stats[matchedCountry].sum += sensor.pm25
-      stats[matchedCountry].count += 1
-    })
-
-    const insights = {}
-    Object.entries(stats).forEach(([country, { sum, count }]) => {
-      const avg = count ? sum / count : 0
-      if (!Number.isFinite(avg)) return
-      const rounded = Math.round(avg * 10) / 10
-      insights[country] = {
-        pollution: [`PurpleAir PM2.5 avg ${rounded} ug/m3 (${count} sensors)`]
-      }
-    })
-
-    return insights
-  }
-
-  useEffect(() => {
-    const d3 = window.d3
-    if (!d3 || !geojsonRef.current || purpleAirSensors.length === 0) {
-      return
-    }
-
-    const nextInsights = buildPurpleAirInsights(
-      d3,
-      geojsonRef.current,
-      purpleAirSensors
-    )
-    setPurpleAirInsightsByCountry(nextInsights)
-  }, [purpleAirSensors])
 
   useEffect(() => {
     const d3 = window.d3
@@ -143,7 +22,166 @@ function App() {
     const geoUrl =
       'https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson'
 
-    const countryInsights = {
+    const coastalCountries = [
+      'Albania',
+      'Algeria',
+      'Angola',
+      'Antigua and Barbuda',
+      'Argentina',
+      'Australia',
+      'Bahamas',
+      'Bahrain',
+      'Bangladesh',
+      'Barbados',
+      'Belgium',
+      'Belize',
+      'Benin',
+      'Bosnia and Herzegovina',
+      'Brazil',
+      'Brunei',
+      'Bulgaria',
+      'Cambodia',
+      'Cameroon',
+      'Canada',
+      'Cape Verde',
+      'Chile',
+      'China',
+      'Colombia',
+      'Comoros',
+      'Costa Rica',
+      'Cote d\'Ivoire',
+      'Croatia',
+      'Cuba',
+      'Cyprus',
+      'Denmark',
+      'Djibouti',
+      'Dominica',
+      'Dominican Republic',
+      'Ecuador',
+      'Egypt',
+      'El Salvador',
+      'Equatorial Guinea',
+      'Eritrea',
+      'Estonia',
+      'Fiji',
+      'Finland',
+      'France',
+      'Gabon',
+      'Gambia',
+      'Georgia',
+      'Germany',
+      'Ghana',
+      'Greece',
+      'Grenada',
+      'Guatemala',
+      'Guinea',
+      'Guinea-Bissau',
+      'Guyana',
+      'Haiti',
+      'Honduras',
+      'Iceland',
+      'India',
+      'Indonesia',
+      'Iran',
+      'Iraq',
+      'Ireland',
+      'Israel',
+      'Italy',
+      'Jamaica',
+      'Japan',
+      'Jordan',
+      'Kenya',
+      'Kiribati',
+      'Kuwait',
+      'Latvia',
+      'Lebanon',
+      'Liberia',
+      'Libya',
+      'Lithuania',
+      'Madagascar',
+      'Malaysia',
+      'Maldives',
+      'Malta',
+      'Marshall Islands',
+      'Mauritania',
+      'Mauritius',
+      'Mexico',
+      'Micronesia',
+      'Monaco',
+      'Montenegro',
+      'Morocco',
+      'Mozambique',
+      'Myanmar',
+      'Namibia',
+      'Nauru',
+      'Netherlands',
+      'New Zealand',
+      'Nicaragua',
+      'Nigeria',
+      'North Korea',
+      'Norway',
+      'Oman',
+      'Pakistan',
+      'Palau',
+      'Panama',
+      'Papua New Guinea',
+      'Peru',
+      'Philippines',
+      'Poland',
+      'Portugal',
+      'Qatar',
+      'Romania',
+      'Russia',
+      'Saint Kitts and Nevis',
+      'Saint Lucia',
+      'Saint Vincent and the Grenadines',
+      'Samoa',
+      'Sao Tome and Principe',
+      'Saudi Arabia',
+      'Senegal',
+      'Seychelles',
+      'Sierra Leone',
+      'Singapore',
+      'Slovenia',
+      'Solomon Islands',
+      'Somalia',
+      'South Africa',
+      'South Korea',
+      'Spain',
+      'Sri Lanka',
+      'Sudan',
+      'Suriname',
+      'Sweden',
+      'Syria',
+      'Taiwan',
+      'Tanzania',
+      'Thailand',
+      'Togo',
+      'Tonga',
+      'Trinidad and Tobago',
+      'Tunisia',
+      'Turkey',
+      'Tuvalu',
+      'Ukraine',
+      'United Arab Emirates',
+      'United Kingdom',
+      'United States',
+      'Uruguay',
+      'Venezuela',
+      'Vietnam',
+      'Yemen'
+    ]
+
+    const baseInsight = {
+      pollution: ['Coastal pollution pressure signals (public sources)'],
+      biodiversity: ['Coastal biodiversity loss signals (public sources)'],
+      resources: [
+        'Fish production trend signals (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+        'Rare species signals (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
+      ]
+    }
+
+    const detailedCountryInsights = {
       Australia: {
         pollution: [
           'Great Barrier Reef runoff hotspots near coastal catchments',
@@ -154,8 +192,8 @@ function App() {
           'Declines in dugong seagrass habitats'
         ],
         resources: [
-          'High coastal water demand for agriculture and tourism',
-          'Fisheries pressure on reef-adjacent stocks'
+          'Fisheries pressure on reef-adjacent stocks (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+          'Rare coastal species signals (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
         ]
       },
       Brazil: {
@@ -167,7 +205,10 @@ function App() {
           'Mangrove loss in estuarine zones',
           'Sea turtle nesting pressure on northeast beaches'
         ],
-        resources: ['Industrial fishing intensity along the continental shelf']
+        resources: [
+          'Industrial fishing intensity along the continental shelf (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+          'Threatened coastal species signals (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
+        ]
       },
       Canada: {
         pollution: [
@@ -179,7 +220,8 @@ function App() {
           'Right whale migration stressors in Atlantic waters'
         ],
         resources: [
-          'Shellfish aquaculture expansion with local water use impacts'
+          'Shellfish aquaculture expansion and harvest pressure (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+          'Cold-water species status (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
         ]
       },
       China: {
@@ -191,7 +233,10 @@ function App() {
           'Habitat loss in estuaries and tidal flats',
           'Pressure on migratory shorebirds in coastal flyways'
         ],
-        resources: ['High seafood demand driving fishing effort']
+        resources: [
+          'High seafood demand driving fishing effort (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+          'Threatened marine species trends (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
+        ]
       },
       India: {
         pollution: [
@@ -202,7 +247,10 @@ function App() {
           'Mangrove degradation in the Sundarbans',
           'Coastal wetland conversion'
         ],
-        resources: ['Intense nearshore fishing for small pelagics']
+        resources: [
+          'Intense nearshore fishing for small pelagics (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+          'Coastal species rarity (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
+        ]
       },
       Indonesia: {
         pollution: [
@@ -214,8 +262,8 @@ function App() {
           'Seagrass habitat fragmentation'
         ],
         resources: [
-          'Small-scale fisheries pressure in coastal villages',
-          'Tourism-related water demand in reef islands'
+          'Small-scale fisheries pressure in coastal villages (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+          'Reef species vulnerability (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
         ]
       },
       Japan: {
@@ -227,7 +275,10 @@ function App() {
           'Kelp forest loss in warming coastal zones',
           'Bycatch concerns for migratory species'
         ],
-        resources: ['High seafood consumption and import dependence']
+        resources: [
+          'High seafood consumption and import dependence (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+          'Species decline signals (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
+        ]
       },
       Mexico: {
         pollution: [
@@ -238,7 +289,10 @@ function App() {
           'Coral reef stress in Mesoamerican Barrier Reef',
           'Mangrove conversion in coastal lagoons'
         ],
-        resources: ['Overfishing signals in reef-adjacent fisheries']
+        resources: [
+          'Overfishing signals in reef-adjacent fisheries (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+          'Threatened reef species (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
+        ]
       },
       Norway: {
         pollution: [
@@ -249,7 +303,10 @@ function App() {
           'Cold-water coral vulnerability to ocean warming',
           'Seabird population shifts'
         ],
-        resources: ['High aquaculture water use in coastal zones']
+        resources: [
+          'High aquaculture and capture pressure (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+          'Cold-water species status (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
+        ]
       },
       Philippines: {
         pollution: [
@@ -260,7 +317,10 @@ function App() {
           'Coral reef degradation from warming and tourism',
           'Seagrass meadow fragmentation'
         ],
-        resources: ['Dense artisanal fishing pressure']
+        resources: [
+          'Dense artisanal fishing pressure (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+          'Threatened coastal species (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
+        ]
       },
       'South Africa': {
         pollution: [
@@ -271,7 +331,10 @@ function App() {
           'Kelp forest stress on the west coast',
           'Penguin colony declines'
         ],
-        resources: ['Commercial fishing pressure on key stocks']
+        resources: [
+          'Commercial fishing pressure on key stocks (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+          'Threatened marine species (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
+        ]
       },
       'United States': {
         pollution: [
@@ -283,33 +346,20 @@ function App() {
           'North Atlantic right whale entanglement risk'
         ],
         resources: [
-          'High coastal water demand from industry and cities',
-          'Fishing pressure on groundfish stocks'
+          'Fishing pressure on groundfish stocks (<a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>)',
+          'Rare species signals (<a href="https://www.iucnredlist.org/">IUCN Red List</a>)'
         ]
       }
     }
 
-    const mergeInsights = (base, updates) => {
-      const merged = { ...base }
-      Object.entries(updates).forEach(([country, update]) => {
-        const existing = merged[country] || {}
-        merged[country] = {
-          pollution: [
-            ...(existing.pollution || []),
-            ...(update.pollution || [])
-          ],
-          biodiversity: [
-            ...(existing.biodiversity || []),
-            ...(update.biodiversity || [])
-          ],
-          resources: [
-            ...(existing.resources || []),
-            ...(update.resources || [])
-          ]
-        }
-      })
-      return merged
-    }
+    const countryInsights = coastalCountries.reduce((acc, country) => {
+      acc[country] = baseInsight
+      return acc
+    }, {})
+
+    Object.entries(detailedCountryInsights).forEach(([country, insight]) => {
+      countryInsights[country] = insight
+    })
 
     const buildTooltipMarkup = (
       countryName,
@@ -356,7 +406,9 @@ function App() {
       if (enabledCategories.resources) {
         sections.push(`
           <div class="tooltip-section">
-            <div class="tooltip-label">Resource use</div>
+            <div class="tooltip-label">
+              Resources overuse in marine ecosystems
+            </div>
             ${renderList(insight.resources)}
           </div>
         `)
@@ -395,10 +447,7 @@ function App() {
 
       const width = mapRef.current.clientWidth
       const height = mapRef.current.clientHeight
-      const insightsByCountry = mergeInsights(
-        countryInsights,
-        purpleAirInsightsByCountry
-      )
+      const insightsByCountry = countryInsights
 
       svg.selectAll('*').remove()
 
@@ -488,14 +537,6 @@ function App() {
         }
         if (geojsonRef.current) {
           renderMap(geojsonRef.current)
-          if (purpleAirSensors.length > 0) {
-            const nextInsights = buildPurpleAirInsights(
-              d3,
-              geojsonRef.current,
-              purpleAirSensors
-            )
-            setPurpleAirInsightsByCountry(nextInsights)
-          }
         }
       } catch (error) {
         svg
@@ -522,7 +563,7 @@ function App() {
     return () => {
       window.removeEventListener('resize', handleResize)
     }
-  }, [activeCategories, purpleAirInsightsByCountry, purpleAirSensors])
+  }, [activeCategories])
 
   const toggleCategory = (categoryKey) => {
     setActiveCategories((current) => ({
@@ -531,21 +572,13 @@ function App() {
     }))
   }
 
-  const purpleAirStatus = purpleAirError
-    ? `PurpleAir status: ${purpleAirError}`
-    : purpleAirUpdatedAt
-      ? `PurpleAir status: Updated ${new Date(
-          purpleAirUpdatedAt
-        ).toLocaleString()}`
-      : 'PurpleAir status: Loading sensors...'
-
   return (
     <section id="worldmap">
       <div className="worldmap-header">
         <h2>Marine sustainability signals</h2>
         <p>
-          Hover any country to see pollution, biodiversity loss, and resource use
-          signals from coastal and marine systems.
+          Hover any country to see pollution, biodiversity loss, and resources
+          overuse in marine ecosystems signals from coastal and marine systems.
         </p>
       </div>
       <div className="worldmap-controls">
@@ -574,7 +607,7 @@ function App() {
           }`}
           onClick={() => toggleCategory('resources')}
         >
-          Resource use
+          Resources overuse in marine ecosystems
         </button>
       </div>
       <div className="worldmap-legend">
@@ -598,9 +631,9 @@ function App() {
         ></div>
       </div>
       <div className="worldmap-note">
-        Data placeholders reflect the three required categories only. Replace or
-        extend with live sources when ready.
-        <span className="worldmap-status">{purpleAirStatus}</span>
+        Tracking fish production change and rare species signals via public
+        sources: <a href="https://www.fao.org/fishery/statistics/software/fishstat/en">FAO FishStat</a>{' '}
+        and <a href="https://www.iucnredlist.org/">IUCN Red List</a>.
       </div>
     </section>
   )
