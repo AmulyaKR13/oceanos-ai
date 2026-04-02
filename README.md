@@ -1,132 +1,274 @@
-# Karnataka Pollution Dashboard
+# 🌏 Karnataka Pollution Dashboard
 
-An interactive React + TypeScript dashboard for exploring Karnataka pollution data across air and water sources.
+An interactive **React + TypeScript environmental monitoring dashboard** that visualizes **air and water pollution data across Karnataka** using geospatial mapping, real datasets, and an AI-powered chatbot assistant.
 
-The app combines:
-- Local CSV datasets (AQI and lake water quality)
-- Supplemental curated records
-- Live online AQI data (Open-Meteo)
-- Streaming intent chatbot, map view, filter panel, stats cards, and exportable table
+🚀 Built for **Advaya Hackathon 2026**
 
-## Features
+---
 
-- Interactive Karnataka map with hover tooltips and detail popups
-- Category, city, date-range, and keyword filtering
-- Map highlights section for top measurable points
-- Chatbot responses stream in chunks (ChatGPT-style) with auto-scrolling chat history
-- Automatic map zoom from chatbot intent/results and city filter selection
-- Data table with pagination and page-size control
-- Export filtered records to CSV and Excel
-- Light/Dark mode toggle (sun/moon button)
+## 🧠 Problem
 
-## Data Location
+Environmental pollution data in Karnataka is scattered across multiple sources and is difficult for citizens, researchers, and policymakers to explore or analyze efficiently.
 
-Local static files used by the app are served from:
+Users often struggle to:
 
-- public/data
-- public/geo
+* Understand pollution trends across cities
+* Identify environmental hotspots
+* Access datasets in a usable format
+
+---
+
+## 💡 Solution
+
+The **Karnataka Pollution Dashboard** consolidates multiple pollution datasets into a single interactive platform that enables:
+
+* Geospatial pollution visualization
+* Intelligent data exploration
+* Natural language queries via chatbot
+* Exportable environmental datasets
+
+The system combines **local datasets, live AQI data, and AI-powered intent analysis** to make environmental information accessible and actionable.
+
+---
+
+## 🎥 Demo
+
+### Dashboard Overview
+
+https://res.cloudinary.com/dfqeubc07/image/upload/v1775095049/WhatsApp_Image_2026-04-02_at_7.11.37_AM_iks7re.jpg
+
+
+### Pollution Map Visualization
+
+https://res.cloudinary.com/dfqeubc07/image/upload/v1775095049/WhatsApp_Image_2026-04-02_at_7.12.23_AM_de5oi8.jpg
+
+### Chatbot Interaction
+
+https://res.cloudinary.com/dfqeubc07/image/upload/v1775095050/WhatsApp_Image_2026-04-02_at_7.12.45_AM_emmfwh.jpg
+
+🎥 Demo Video: 
+
+*(https://drive.google.com/file/d/1ba0gXpL66qGW0DO2qnFh7tJ2iyl3_Eoi/view?usp=sharing)*
+
+## ✨ Features
+
+### 🗺️ Interactive Map
+
+* Karnataka map with hover tooltips and detail popups
+* Pollution point highlighting
+* Automatic zoom based on chatbot results or city selection
+
+### 🔎 Data Exploration
+
+* Category, city, date-range, and keyword filtering
+* Map highlights for top pollution measurements
+* Data table with pagination and page-size control
+* Export filtered records to **CSV and Excel**
+
+### 🤖 AI Chatbot
+
+* ChatGPT-style streaming responses
+* Auto-scrolling chat history
+* Intent parsing using **Groq LLM**
+* Automatic fallback to **local Ollama model**
+
+### 🎨 User Experience
+
+* Light/Dark mode toggle
+* Responsive UI
+* Optimized tooltips for readability
+
+---
+
+## 📊 Data Sources
+
+The application combines multiple data sources:
+
+* Local **CSV datasets** (AQI + lake water quality)
+* **Supplemental curated environmental records**
+* **Live AQI data** from Open-Meteo API
+
+---
+
+## 📂 Data Location
+
+Local static datasets are served from:
+
+public/data
+public/geo
 
 Important:
-- The app fetches CSV files from /data/... (public directory at runtime)
-- Karnataka boundary GeoJSON is loaded from /geo/karnataka.geojson
 
-## Tech Stack
+* CSV files are fetched from **/data/** at runtime
+* Karnataka boundary GeoJSON is loaded from **/geo/karnataka.geojson**
 
-- React 19
-- TypeScript
-- Vite
-- React Leaflet + Leaflet
-- Papa Parse
-- Axios
-- date-fns
-- xlsx
+---
 
-## Getting Started
+## ⚙️ Tech Stack
 
-1. Install dependencies
+### Frontend
 
-```bash
+* React 19
+* TypeScript
+* Vite
+
+### Mapping & Visualization
+
+* React Leaflet
+* Leaflet
+
+### Data Processing
+
+* Papa Parse
+* Axios
+* date-fns
+
+### Data Export
+
+* xlsx
+
+---
+
+## 🚀 Getting Started
+
+### Install dependencies
+
+```
 npm install
 ```
 
-Optional: configure Groq for faster chatbot intent parsing.
+### Run development server
 
-Create a `.env` file in project root (or copy `.env.example`) and set:
+```
+npm run dev
+```
 
-```bash
+### Build production version
+
+```
+npm run build
+```
+
+### Preview production build
+
+```
+npm run preview
+```
+
+---
+
+## 🔐 Optional AI Configuration
+
+For faster chatbot intent parsing, configure **Groq API**.
+
+Create a `.env` file in the project root:
+
+```
 VITE_GROQ_API_KEY=your_groq_api_key_here
 VITE_GROQ_MODEL=llama-3.1-8b-instant
 ```
 
-If Groq is not configured or unavailable, chatbot falls back to local Ollama.
+If Groq is unavailable, the chatbot automatically falls back to **local Ollama**.
 
-Optional: local Ollama setup for fallback chatbot intent parsing.
+---
 
-1. Install and run Ollama from https://ollama.com
-2. Pull the model used by this dashboard:
+## 🤖 Ollama Setup (Fallback AI)
 
-```bash
+Install Ollama:
+
+https://ollama.com
+
+Pull the model used by this dashboard:
+
+```
 ollama pull deepseek-r1:1.5b
 ```
 
-3. Keep Ollama running locally on default endpoint:
+Ensure Ollama runs locally at:
 
-```bash
+```
 http://localhost:11434
 ```
 
-2. Run development server
+---
 
-```bash
-npm run dev
+## 📁 Project Structure
+
+```
+src/
+ ├── components     UI components (map, filters, table, stats)
+ ├── services       Data loading and API integration
+ ├── config         Dataset descriptors and location configs
+ ├── types          Shared TypeScript interfaces
+ └── utils          Parsing, date helpers, export utilities
+
+public/
+ ├── data           Pollution datasets (CSV)
+ └── geo            Karnataka boundary GeoJSON
 ```
 
-3. Build for production
+---
 
-```bash
-npm run build
-```
+## 📚 Data Glossary
 
-4. Preview production build
+**BOD (Biological Oxygen Demand)**
 
-```bash
-npm run preview
-```
+The amount of dissolved oxygen microorganisms require to break down organic matter in water.
 
-## Available Scripts
+Measured as **BOD5 (mg/L)**.
 
-- npm run dev: Start Vite dev server
-- npm run build: Type-check and build production bundle
-- npm run lint: Run ESLint
-- npm run preview: Serve the built app locally
+Higher BOD values typically indicate **greater organic pollution levels in water bodies**.
 
-## Project Structure (Key Paths)
+---
 
-- src/components: UI components (map, filters, table, stats)
-- src/services: Data loading, parsing, and online fetch integration
-- src/config: Dataset descriptors, location config, supplemental records
-- src/types: Shared TypeScript interfaces
-- src/utils: Parsing/date/export helpers
-- public/data: CSV and related static dataset files
-- public/geo: Karnataka geo boundary file
+## 🛠 Troubleshooting
 
-## Notes
+If datasets do not load:
 
-- Tooltip readability is tuned for both light and dark themes.
-- District filtering was removed from the filter panel by design.
-- Pollution Type filtering was removed from the filter panel by design.
-- Pollution type still exists in records and is displayed in the table for context.
-- Chatbot intent engine uses Groq when `VITE_GROQ_API_KEY` is available, with Ollama fallback.
-- Chatbot panel auto-scrolls as streamed chunks arrive.
-- Map zoom priority is: chatbot highlighted results, chatbot detected city, then selected city filter.
+* Verify filenames in `src/config/datasets.ts`
+* Ensure files exist inside `public/data`
 
-## Data Glossary
+If the map boundary does not appear:
 
-- BOD (Biological Oxygen Demand): The amount of dissolved oxygen microorganisms need to break down organic matter in water (commonly measured as BOD5 in mg/L). Higher BOD typically indicates higher organic pollution load.
+* Confirm `public/geo/karnataka.geojson` exists
 
-## Troubleshooting
+If live AQI fails:
 
-- If local files do not load, verify the filenames in src/config/datasets.ts match files in public/data.
-- If map boundary does not appear, verify public/geo/karnataka.geojson exists.
-- If online AQI fails, the dashboard still works with local + supplemental datasets.
-- If chatbot does not respond, verify Groq API key or ensure Ollama is running at http://localhost:11434 and model deepseek-r1:1.5b is installed.
+* The dashboard continues working with **local datasets**
+
+If the chatbot does not respond:
+
+* Verify **Groq API key**
+* Or ensure **Ollama is running at http://localhost:11434**
+
+---
+
+## 🌱 Future Improvements
+
+* Add **time-series pollution trend analysis**
+* Support **more Karnataka districts**
+* Integrate **government pollution APIs**
+* Add **predictive pollution modeling**
+
+---
+
+
+
+## Contributors
+
+This project was developed as part of **Advaya Hackathon 2026**.
+
+
+* **@AmulyaKR13**
+* **@Nishantrde** – Nishant Garg
+* **@princerajpurohit9036-ship-it** – Prince Rajpurohit
+* **@Subhrajit428**
+
+
+---
+
+## 📜 License
+
+MIT License
+
+Created for **Advaya Hackathon 2026**.
