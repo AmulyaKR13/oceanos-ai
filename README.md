@@ -6,13 +6,15 @@ The app combines:
 - Local CSV datasets (AQI and lake water quality)
 - Supplemental curated records
 - Live online AQI data (Open-Meteo)
-- A map view, filter panel, stats cards, and exportable table
+- Streaming intent chatbot, map view, filter panel, stats cards, and exportable table
 
 ## Features
 
 - Interactive Karnataka map with hover tooltips and detail popups
-- Category, district, city, date-range, and keyword filtering
+- Category, city, date-range, and keyword filtering
 - Map highlights section for top measurable points
+- Chatbot responses stream in chunks (ChatGPT-style) with auto-scrolling chat history
+- Automatic map zoom from chatbot intent/results and city filter selection
 - Data table with pagination and page-size control
 - Export filtered records to CSV and Excel
 - Light/Dark mode toggle (sun/moon button)
@@ -58,6 +60,21 @@ VITE_GROQ_MODEL=llama-3.1-8b-instant
 
 If Groq is not configured or unavailable, chatbot falls back to local Ollama.
 
+Optional: local Ollama setup for fallback chatbot intent parsing.
+
+1. Install and run Ollama from https://ollama.com
+2. Pull the model used by this dashboard:
+
+```bash
+ollama pull deepseek-r1:1.5b
+```
+
+3. Keep Ollama running locally on default endpoint:
+
+```bash
+http://localhost:11434
+```
+
 2. Run development server
 
 ```bash
@@ -96,9 +113,12 @@ npm run preview
 ## Notes
 
 - Tooltip readability is tuned for both light and dark themes.
+- District filtering was removed from the filter panel by design.
 - Pollution Type filtering was removed from the filter panel by design.
 - Pollution type still exists in records and is displayed in the table for context.
 - Chatbot intent engine uses Groq when `VITE_GROQ_API_KEY` is available, with Ollama fallback.
+- Chatbot panel auto-scrolls as streamed chunks arrive.
+- Map zoom priority is: chatbot highlighted results, chatbot detected city, then selected city filter.
 
 ## Data Glossary
 
@@ -109,3 +129,4 @@ npm run preview
 - If local files do not load, verify the filenames in src/config/datasets.ts match files in public/data.
 - If map boundary does not appear, verify public/geo/karnataka.geojson exists.
 - If online AQI fails, the dashboard still works with local + supplemental datasets.
+- If chatbot does not respond, verify Groq API key or ensure Ollama is running at http://localhost:11434 and model deepseek-r1:1.5b is installed.
