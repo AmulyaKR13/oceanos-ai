@@ -106,9 +106,22 @@ function App() {
   }, []);
 
   const cities = useMemo(
-    () => Array.from(new Set(records.map((item) => item.city))).sort(),
+    () =>
+      Array.from(new Set(records.map((item) => item.city)))
+        .filter((city) => city.trim().toLowerCase() !== 'karnataka')
+        .sort(),
     [records],
   );
+
+  useEffect(() => {
+    if (filters.city === 'all') {
+      return;
+    }
+
+    if (!cities.includes(filters.city)) {
+      setFilters((current) => ({ ...current, city: 'all' }));
+    }
+  }, [cities, filters.city]);
 
   const filteredRecords = useMemo(
     () =>
