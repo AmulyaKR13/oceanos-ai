@@ -1,155 +1,179 @@
-# 🌏 Karnataka Pollution Dashboard
+# Oceanos-AI
 
-An interactive **React + TypeScript environmental monitoring dashboard** that visualizes **air and water pollution data across Karnataka** using geospatial mapping, real datasets, and an AI-powered chatbot assistant.
+Oceanos-AI is an **AI-powered environmental monitoring dashboard** that visualizes pollution data and environmental risks using **interactive geospatial maps and intelligent data analysis**.
+
+The platform helps users explore **pollution hotspots, environmental risk zones, and ecosystem health** through a visual dashboard and an AI-powered assistant.
 
 🚀 Built for **Advaya Hackathon 2026**
 
 ---
 
-## 🧠 Problem
+# Problem Statement
 
-Environmental pollution data in Karnataka is scattered across multiple sources and is difficult for citizens, researchers, and policymakers to explore or analyze efficiently.
+The marine and environmental ecosystem is facing major threats such as pollution, biodiversity loss, and unsustainable resource use.
 
-Users often struggle to:
+Environmental data exists across many sources, but it is:
 
-* Understand pollution trends across cities
-* Identify environmental hotspots
-* Access datasets in a usable format
+* Scattered across multiple databases
+* Difficult to analyze and visualize
+* Hard for policymakers and researchers to interpret quickly
 
----
+Because of this lack of visibility, environmental damage is often detected **too late**.
 
-## 💡 Solution
-
-The **Karnataka Pollution Dashboard** consolidates multiple pollution datasets into a single interactive platform that enables:
-
-* Geospatial pollution visualization
-* Intelligent data exploration
-* Natural language queries via chatbot
-* Exportable environmental datasets
-
-The system combines **local datasets, live AQI data, and AI-powered intent analysis** to make environmental information accessible and actionable.
+Regions with high pollution risk or ecosystem decline often go unnoticed because there is **no unified platform that aggregates and visualizes environmental data in one place**. 
 
 ---
 
-## 🎥 Demo
+# Proposed Solution
 
-### Dashboard Overview
+**Oceanos-AI** solves this problem by providing a **unified environmental monitoring dashboard**.
 
-https://res.cloudinary.com/dfqeubc07/image/upload/v1775095049/WhatsApp_Image_2026-04-02_at_7.11.37_AM_iks7re.jpg
+The platform collects environmental datasets and transforms them into **interactive visual insights**.
 
+Key capabilities:
 
-### Pollution Map Visualization
+* Interactive environmental map visualization
+* Identification of pollution hotspots
+* AI-powered chatbot for data exploration
+* Filtering and analysis of environmental datasets
+* Exportable environmental records
 
-https://res.cloudinary.com/dfqeubc07/image/upload/v1775095049/WhatsApp_Image_2026-04-02_at_7.12.23_AM_de5oi8.jpg
+Instead of showing raw datasets, the system **analyzes and visualizes environmental conditions**, allowing users to understand:
 
-### Chatbot Interaction
+* Pollution levels
+* Ecosystem health
+* Human activities affecting the environment
 
-https://res.cloudinary.com/dfqeubc07/image/upload/v1775095050/WhatsApp_Image_2026-04-02_at_7.12.45_AM_emmfwh.jpg
+This converts complex environmental datasets into **clear, actionable insights for decision-making**. 
 
-🎥 Demo Video: 
+---
 
-*(https://drive.google.com/file/d/1ba0gXpL66qGW0DO2qnFh7tJ2iyl3_Eoi/view?usp=sharing)*
+# Features
 
-## ✨ Features
+## Interactive Environmental Map
 
-### 🗺️ Interactive Map
+* Karnataka map with hover tooltips and detailed information popups
+* Pollution hotspot highlighting
+* Automatic map zoom based on chatbot results or selected city
 
-* Karnataka map with hover tooltips and detail popups
-* Pollution point highlighting
-* Automatic zoom based on chatbot results or city selection
-
-### 🔎 Data Exploration
+## Data Exploration
 
 * Category, city, date-range, and keyword filtering
 * Map highlights for top pollution measurements
 * Data table with pagination and page-size control
 * Export filtered records to **CSV and Excel**
 
-### 🤖 AI Chatbot
+## AI Chatbot
 
 * ChatGPT-style streaming responses
-* Auto-scrolling chat history
+* Natural language queries for pollution data
 * Intent parsing using **Groq LLM**
 * Automatic fallback to **local Ollama model**
 
-### 🎨 User Experience
+## User Experience
 
-* Light/Dark mode toggle
+* Light / Dark mode toggle
 * Responsive UI
-* Optimized tooltips for readability
+* Optimized tooltip readability
 
 ---
 
-## 📊 Data Sources
+# Screenshots / Demo
 
-The application combines multiple data sources:
+Dashboard Overview
+https://res.cloudinary.com/dfqeubc07/image/upload/v1775095049/WhatsApp_Image_2026-04-02_at_7.11.37_AM_iks7re.jpg
 
-* Local **CSV datasets** (AQI + lake water quality)
-* **Supplemental curated environmental records**
-* **Live AQI data** from Open-Meteo API
+Pollution Map Visualization
+https://res.cloudinary.com/dfqeubc07/image/upload/v1775095049/WhatsApp_Image_2026-04-02_at_7.12.23_AM_de5oi8.jpg
+
+Chatbot Interaction
+https://res.cloudinary.com/dfqeubc07/image/upload/v1775095050/WhatsApp_Image_2026-04-02_at_7.12.45_AM_emmfwh.jpg
+
+Demo Video
+https://drive.google.com/file/d/1ba0gXpL66qGW0DO2qnFh7tJ2iyl3_Eoi/view?usp=sharing
 
 ---
 
-## 📂 Data Location
+# Data Sources
 
-Local static datasets are served from:
+The application combines multiple datasets:
 
+* Local CSV datasets (AQI + lake water quality)
+* Supplemental curated environmental records
+* Live AQI data from **Open-Meteo API**
+
+Local data is served from:
+
+```
 public/data
 public/geo
+```
 
 Important:
 
-* CSV files are fetched from **/data/** at runtime
-* Karnataka boundary GeoJSON is loaded from **/geo/karnataka.geojson**
+* CSV datasets are fetched from `/data/` at runtime
+* Karnataka boundary GeoJSON is loaded from `/geo/karnataka.geojson`
 
 ---
 
-## ⚙️ Tech Stack
+# Tech Stack Used
 
-### Frontend
+Frontend
 
 * React 19
 * TypeScript
 * Vite
 
-### Mapping & Visualization
+Mapping & Visualization
 
 * React Leaflet
 * Leaflet
 
-### Data Processing
+Data Processing
 
 * Papa Parse
 * Axios
 * date-fns
 
-### Data Export
+Data Export
 
 * xlsx
 
+AI Integration
+
+* Groq LLM
+* Ollama (fallback model)
+
 ---
 
-## 🚀 Getting Started
+# Installation / Run Instructions
 
-### Install dependencies
+Clone the repository
+
+```
+git clone https://github.com/<your-repo>/oceanos-ai.git
+cd oceanos-ai
+```
+
+Install dependencies
 
 ```
 npm install
 ```
 
-### Run development server
+Run development server
 
 ```
 npm run dev
 ```
 
-### Build production version
+Build production version
 
 ```
 npm run build
 ```
 
-### Preview production build
+Preview production build
 
 ```
 npm run preview
@@ -157,9 +181,7 @@ npm run preview
 
 ---
 
-## 🔐 Optional AI Configuration
-
-For faster chatbot intent parsing, configure **Groq API**.
+# Optional AI Configuration
 
 Create a `.env` file in the project root:
 
@@ -172,102 +194,18 @@ If Groq is unavailable, the chatbot automatically falls back to **local Ollama**
 
 ---
 
-## 🤖 Ollama Setup (Fallback AI)
-
-Install Ollama:
-
-https://ollama.com
-
-Pull the model used by this dashboard:
-
-```
-ollama pull deepseek-r1:1.5b
-```
-
-Ensure Ollama runs locally at:
-
-```
-http://localhost:11434
-```
-
----
-
-## 📁 Project Structure
-
-```
-src/
- ├── components     UI components (map, filters, table, stats)
- ├── services       Data loading and API integration
- ├── config         Dataset descriptors and location configs
- ├── types          Shared TypeScript interfaces
- └── utils          Parsing, date helpers, export utilities
-
-public/
- ├── data           Pollution datasets (CSV)
- └── geo            Karnataka boundary GeoJSON
-```
-
----
-
-## 📚 Data Glossary
-
-**BOD (Biological Oxygen Demand)**
-
-The amount of dissolved oxygen microorganisms require to break down organic matter in water.
-
-Measured as **BOD5 (mg/L)**.
-
-Higher BOD values typically indicate **greater organic pollution levels in water bodies**.
-
----
-
-## 🛠 Troubleshooting
-
-If datasets do not load:
-
-* Verify filenames in `src/config/datasets.ts`
-* Ensure files exist inside `public/data`
-
-If the map boundary does not appear:
-
-* Confirm `public/geo/karnataka.geojson` exists
-
-If live AQI fails:
-
-* The dashboard continues working with **local datasets**
-
-If the chatbot does not respond:
-
-* Verify **Groq API key**
-* Or ensure **Ollama is running at http://localhost:11434**
-
----
-
-## 🌱 Future Improvements
-
-* Add **time-series pollution trend analysis**
-* Support **more Karnataka districts**
-* Integrate **government pollution APIs**
-* Add **predictive pollution modeling**
-
----
-
-
-
-## Contributors
+# Team Members
 
 This project was developed as part of **Advaya Hackathon 2026**.
 
-
-* **@AmulyaKR13**
-* **@Nishantrde** – Nishant Garg
-* **@princerajpurohit9036-ship-it** – Prince Rajpurohit
-* **@Subhrajit428**
-
+* @AmulyaKR13
+* @Nishantrde – Nishant Garg
+* @princerajpurohit9036-ship-it – Prince Rajpurohit
+* @Subhrajit428
 
 ---
 
-## 📜 License
+# License
 
 MIT License
 
