@@ -1,6 +1,6 @@
-# Oceanos-AI
+# GreenPulse
 
-Oceanos-AI is an **AI-powered environmental monitoring dashboard** that visualizes pollution data and environmental risks using **interactive geospatial maps and intelligent data analysis**.
+GreenPulse is an **AI-powered environmental monitoring dashboard** that visualizes pollution data and environmental risks using **interactive geospatial maps and intelligent data analysis**.
 
 The platform helps users explore **pollution hotspots, environmental risk zones, and ecosystem health** through a visual dashboard and an AI-powered assistant.
 
@@ -26,7 +26,7 @@ Regions with high pollution risk or ecosystem decline often go unnoticed because
 
 # Proposed Solution
 
-**Oceanos-AI** solves this problem by providing a **unified environmental monitoring dashboard**.
+**GreenPulse** solves this problem by providing a **unified environmental monitoring dashboard**.
 
 The platform collects environmental datasets and transforms them into **interactive visual insights**.
 
