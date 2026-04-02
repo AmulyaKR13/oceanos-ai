@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { PollutionRecord } from '../types/pollution';
 import { generateIntentWithOllama } from '../utils/ollama';
@@ -7,6 +7,7 @@ import { extractIntent, filterRecordsByIntent, summarizeMetric } from '../utils/
 interface ChatbotProps {
   records: PollutionRecord[];
   onHighlightRecords: (recordIds: string[]) => void;
+  onFocusCity?: (city: string) => void;
 }
 
 interface ChatMessage {
@@ -16,22 +17,47 @@ interface ChatMessage {
   datasetSnapshot?: string;
 }
 
+function updateLatestAssistantMessage(
+  messages: ChatMessage[],
+  updater: (message: ChatMessage) => ChatMessage,
+): ChatMessage[] {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    if (messages[i].role === 'assistant') {
+      const next = [...messages];
+      next[i] = updater(next[i]);
+      return next;
+    }
+  }
+
+  return messages;
+}
+
 const SUGGESTED_PROMPTS = [
   'Show AQI data for Bengaluru',
   'Which lakes are most polluted in Karnataka?',
   'Top 5 polluted locations in Mysuru',
 ];
 
-export function Chatbot({ records, onHighlightRecords }: ChatbotProps) {
+export function Chatbot({ records, onHighlightRecords, onFocusCity }: ChatbotProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const historyRef = useRef<HTMLDivElement | null>(null);
   const hasRecords = records.length > 0;
 
   const placeholder = useMemo(
     () => (hasRecords ? 'Ask about AQI, lakes, districts, or cities...' : 'Load data first to chat with datasets...'),
     [hasRecords],
   );
+
+  useEffect(() => {
+    const history = historyRef.current;
+    if (!history) {
+      return;
+    }
+
+    history.scrollTop = history.scrollHeight;
+  }, [messages]);
 
   async function handleSend(rawPrompt: string) {
     const prompt = rawPrompt.trim();
@@ -41,14 +67,27 @@ export function Chatbot({ records, onHighlightRecords }: ChatbotProps) {
 
     setLoading(true);
     setInput('');
-    setMessages((prev) => [...prev, { role: 'user', text: prompt }]);
+    setMessages((prev) => [
+      ...prev,
+      { role: 'user', text: prompt },
+      { role: 'assistant', text: 'Intent notes: ' },
+    ]);
 
     try {
-      const modelResponse = await generateIntentWithOllama(prompt);
+      let streamText = '';
+      const modelResponse = await generateIntentWithOllama(prompt, (chunk) => {
+        streamText += chunk;
+        setMessages((prev) => updateLatestAssistantMessage(prev, (message) => ({
+          ...message,
+          text: `Intent notes: ${streamText}`,
+        })));
+      });
+
       const intent = extractIntent(prompt, modelResponse, records);
       const matchedRecords = filterRecordsByIntent(records, intent);
 
       onHighlightRecords(matchedRecords.map((record) => record.id));
+      onFocusCity?.(intent.city ?? '');
 
       const summary = matchedRecords.length === 0
         ? 'I parsed your request but found no matching records in the loaded dataset.'
@@ -72,23 +111,17 @@ export function Chatbot({ records, onHighlightRecords }: ChatbotProps) {
         ? ['Name | City | District | Date | Metric', ...snapshotRows].join('\n')
         : '';
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          text: assistantText,
-          results: matchedRecords.slice(0, 10),
-          datasetSnapshot,
-        },
-      ]);
+      setMessages((prev) => updateLatestAssistantMessage(prev, (message) => ({
+        ...message,
+        text: assistantText,
+        results: matchedRecords.slice(0, 10),
+        datasetSnapshot,
+      })));
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          text: 'Could not process the request. If using Groq, verify VITE_GROQ_API_KEY. Otherwise ensure Ollama is running on http://localhost:11434 with deepseek-r1:1.5b.',
-        },
-      ]);
+      setMessages((prev) => updateLatestAssistantMessage(prev, (message) => ({
+        ...message,
+        text: 'Could not process the request. If using Groq, verify VITE_GROQ_API_KEY. Otherwise ensure Ollama is running on http://localhost:11434 with deepseek-r1:1.5b.',
+      })));
     } finally {
       setLoading(false);
     }
@@ -102,6 +135,7 @@ export function Chatbot({ records, onHighlightRecords }: ChatbotProps) {
           type="button"
           onClick={() => {
             onHighlightRecords([]);
+            onFocusCity?.('');
             setMessages([]);
           }}
         >
@@ -117,7 +151,7 @@ export function Chatbot({ records, onHighlightRecords }: ChatbotProps) {
         ))}
       </div>
 
-      <div className="chatbot-history">
+      <div className="chatbot-history" ref={historyRef}>
         {messages.length === 0 ? (
           <p className="chatbot-empty">Ask a question and I will parse intent using DeepSeek, then query your local datasets.</p>
         ) : (

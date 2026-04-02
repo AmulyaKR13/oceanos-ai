@@ -15,7 +15,6 @@ type ThemeMode = 'light' | 'dark';
 
 const DEFAULT_FILTERS: FilterState = {
   category: 'all',
-  district: 'all',
   city: 'all',
   search: '',
   startDate: '',
@@ -63,6 +62,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [highlightedRecordIds, setHighlightedRecordIds] = useState<string[]>([]);
+  const [chatbotFocusedCity, setChatbotFocusedCity] = useState('');
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
     const stored = localStorage.getItem('theme-mode');
     if (stored === 'light' || stored === 'dark') {
@@ -105,10 +105,6 @@ function App() {
     };
   }, []);
 
-  const districts = useMemo(
-    () => Array.from(new Set(records.map((item) => item.district))).sort(),
-    [records],
-  );
   const cities = useMemo(
     () => Array.from(new Set(records.map((item) => item.city))).sort(),
     [records],
@@ -118,10 +114,6 @@ function App() {
     () =>
       records.filter((record) => {
         if (filters.category !== 'all' && record.category !== filters.category) {
-          return false;
-        }
-
-        if (filters.district !== 'all' && record.district !== filters.district) {
           return false;
         }
 
@@ -142,11 +134,6 @@ function App() {
     [records, filters],
   );
 
-  useEffect(() => {
-    const visibleIds = new Set(filteredRecords.map((record) => record.id));
-    setHighlightedRecordIds((current) => current.filter((id) => visibleIds.has(id)));
-  }, [filteredRecords]);
-
   return (
     <main className="app-shell">
       <div className="theme-toggle-row">
@@ -165,15 +152,15 @@ function App() {
 
       <FilterPanel
         filters={filters}
-        districts={districts}
         cities={cities}
         records={records}
         onFiltersChange={setFilters}
       />
 
       <Chatbot
-        records={filteredRecords}
+        records={records}
         onHighlightRecords={setHighlightedRecordIds}
+        onFocusCity={setChatbotFocusedCity}
       />
 
       {loading ? <p className="status">Loading local and online pollution datasets...</p> : null}
@@ -182,7 +169,13 @@ function App() {
       {!loading && !error ? (
         <>
           <StatsBar records={filteredRecords} />
-          <PollutionMap records={filteredRecords} highlightedRecordIds={highlightedRecordIds} />
+          <PollutionMap
+            records={filteredRecords}
+            allRecords={records}
+            highlightedRecordIds={highlightedRecordIds}
+            selectedCity={filters.city}
+            chatbotCity={chatbotFocusedCity}
+          />
           <div className="actions-row">
             <h2>Filtered Dataset Table</h2>
             <ExportButtons records={filteredRecords} />

@@ -21,7 +21,6 @@ export interface PollutionRecord {
 
 export interface FilterState {
   category: 'all' | PollutionCategory;
-  district: string;
   city: string;
   search: string;
   startDate: string;

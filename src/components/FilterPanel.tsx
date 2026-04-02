@@ -2,13 +2,12 @@ import type { FilterState, PollutionRecord } from '../types/pollution';
 
 interface FilterPanelProps {
   filters: FilterState;
-  districts: string[];
   cities: string[];
   onFiltersChange: (next: FilterState) => void;
   records: PollutionRecord[];
 }
 
-export function FilterPanel({ filters, districts, cities, onFiltersChange, records }: FilterPanelProps) {
+export function FilterPanel({ filters, cities, onFiltersChange, records }: FilterPanelProps) {
   const update = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
     onFiltersChange({ ...filters, [key]: value });
   };
@@ -23,16 +22,6 @@ export function FilterPanel({ filters, districts, cities, onFiltersChange, recor
             <option value="lake-quality">Lake quality</option>
             <option value="aqi">Local AQI</option>
             <option value="online-aqi">Online AQI</option>
-          </select>
-        </label>
-
-        <label>
-          District
-          <select value={filters.district} onChange={(event) => update('district', event.target.value)}>
-            <option value="all">All</option>
-            {districts.map((district) => (
-              <option key={district} value={district}>{district}</option>
-            ))}
           </select>
         </label>
 

@@ -7,7 +7,10 @@ import type { PollutionRecord } from '../types/pollution';
 
 interface PollutionMapProps {
   records: PollutionRecord[];
+  allRecords?: PollutionRecord[];
   highlightedRecordIds?: string[];
+  selectedCity?: string;
+  chatbotCity?: string;
 }
 
 const KARNATAKA_BOUNDS: [[number, number], [number, number]] = [
@@ -103,13 +106,43 @@ function metricLabel(record: PollutionRecord): string {
   return 'Dissolved O2';
 }
 
-export function PollutionMap({ records, highlightedRecordIds = [] }: PollutionMapProps) {
+export function PollutionMap({
+  records,
+  allRecords,
+  highlightedRecordIds = [],
+  selectedCity = 'all',
+  chatbotCity = '',
+}: PollutionMapProps) {
   const [karnatakaBoundary, setKarnatakaBoundary] = useState<GeoJsonObject | null>(null);
+  const zoomRecords = allRecords && allRecords.length > 0 ? allRecords : records;
   const highlightedSet = useMemo(() => new Set(highlightedRecordIds), [highlightedRecordIds]);
   const highlightedPoints = useMemo(
-    () => records.filter((record) => highlightedSet.has(record.id)).map((record) => [record.latitude, record.longitude] as [number, number]),
-    [records, highlightedSet],
+    () => zoomRecords.filter((record) => highlightedSet.has(record.id)).map((record) => [record.latitude, record.longitude] as [number, number]),
+    [zoomRecords, highlightedSet],
   );
+  const chatbotCityPoints = useMemo(() => {
+    if (!chatbotCity) {
+      return [] as Array<[number, number]>;
+    }
+
+    return zoomRecords
+      .filter((record) => record.city.toLowerCase() === chatbotCity.toLowerCase())
+      .map((record) => [record.latitude, record.longitude] as [number, number]);
+  }, [zoomRecords, chatbotCity]);
+  const selectedCityPoints = useMemo(() => {
+    if (selectedCity === 'all') {
+      return [] as Array<[number, number]>;
+    }
+
+    return zoomRecords
+      .filter((record) => record.city === selectedCity)
+      .map((record) => [record.latitude, record.longitude] as [number, number]);
+  }, [zoomRecords, selectedCity]);
+  const zoomTargetPoints = highlightedPoints.length > 0
+    ? highlightedPoints
+    : chatbotCityPoints.length > 0
+      ? chatbotCityPoints
+      : selectedCityPoints;
 
   const insightPoints = useMemo(() => {
     return [...records]
@@ -161,7 +194,7 @@ export function PollutionMap({ records, highlightedRecordIds = [] }: PollutionMa
         />
 
         <KarnatakaBoundsLock boundary={karnatakaBoundary} />
-        <ChatbotZoomToResults points={highlightedPoints} />
+        <ChatbotZoomToResults points={zoomTargetPoints} />
 
         {karnatakaBoundary ? (
           <GeoJSON
